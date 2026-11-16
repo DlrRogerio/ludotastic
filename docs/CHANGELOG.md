@@ -2,6 +2,46 @@
 
 <!-- version list -->
 
+## v0.4.0 (2026-11-16)
+
+### Bug Fixes
+
+- **connect-four**: Stop minimax tying pruned moves with the best one
+  ([#24](https://github.com/MicaelJarniac/ludotastic/pull/24),
+  [`5a77558`](https://github.com/MicaelJarniac/ludotastic/commit/5a77558361a8474d268fbf5d71278e6dfed2a886))
+
+### Documentation
+
+- Add KaiqueCarvalho01 as a contributor for code, test, and doc
+  ([#5](https://github.com/MicaelJarniac/ludotastic/pull/5),
+  [`56d7a3c`](https://github.com/MicaelJarniac/ludotastic/commit/56d7a3c7f57979b9a6b6825179e8b7adc8a8eeb8))
+
+- Update .all-contributorsrc [skip ci] ([#5](https://github.com/MicaelJarniac/ludotastic/pull/5),
+  [`56d7a3c`](https://github.com/MicaelJarniac/ludotastic/commit/56d7a3c7f57979b9a6b6825179e8b7adc8a8eeb8))
+
+- Update docs/README.md [skip ci] ([#5](https://github.com/MicaelJarniac/ludotastic/pull/5),
+  [`56d7a3c`](https://github.com/MicaelJarniac/ludotastic/commit/56d7a3c7f57979b9a6b6825179e8b7adc8a8eeb8))
+
+- **connect-four**: Add game note and API docs
+  ([#24](https://github.com/MicaelJarniac/ludotastic/pull/24),
+  [`5a77558`](https://github.com/MicaelJarniac/ludotastic/commit/5a77558361a8474d268fbf5d71278e6dfed2a886))
+
+### Features
+
+- Add Connect Four ([#24](https://github.com/MicaelJarniac/ludotastic/pull/24),
+  [`5a77558`](https://github.com/MicaelJarniac/ludotastic/commit/5a77558361a8474d268fbf5d71278e6dfed2a886))
+
+- **connect-four**: Add game, bots, UI and tests
+  ([#24](https://github.com/MicaelJarniac/ludotastic/pull/24),
+  [`5a77558`](https://github.com/MicaelJarniac/ludotastic/commit/5a77558361a8474d268fbf5d71278e6dfed2a886))
+
+### Testing
+
+- **connect-four**: Tighten bot, evaluation and UI assertions
+  ([#24](https://github.com/MicaelJarniac/ludotastic/pull/24),
+  [`5a77558`](https://github.com/MicaelJarniac/ludotastic/commit/5a77558361a8474d268fbf5d71278e6dfed2a886))
+
+
 ## v0.3.0 (2026-11-10)
 
 ### Code Style
