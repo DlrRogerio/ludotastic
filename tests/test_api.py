@@ -41,6 +41,7 @@ async def test_games(client: httpx2.AsyncClient) -> None:
     assert [g["id"] for g in games] == [
         "2048",
         "connect-four",
+        "minesweeper",
         "pictionary",
         "rock-paper-scissors",
         "snake",
