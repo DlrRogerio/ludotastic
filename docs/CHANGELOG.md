@@ -2,6 +2,14 @@
 
 <!-- version list -->
 
+## v0.6.0 (2026-11-23)
+
+### Features
+
+- Add Minesweeper ([#31](https://github.com/MicaelJarniac/ludotastic/pull/31),
+  [`bec2e69`](https://github.com/MicaelJarniac/ludotastic/commit/bec2e699077116a17c2d5edde5234957305bbdaa))
+
+
 ## v0.5.0 (2026-11-22)
 
 ### Bug Fixes
