@@ -225,6 +225,9 @@ class Game[S: BaseModel, A: BaseModel](ABC):
     it available.
     """
 
+    hide_live_seed: ClassVar[bool] = False
+    """Withhold the replay seed from API clients until the match ends."""
+
     info: ClassVar[GameInfo]
     """Static metadata about the game."""
     rules: ClassVar[str] = ""

@@ -38,7 +38,7 @@ class MatchView(BaseModel):
     id: str
     game_id: str
     status: MatchStatus
-    seed: int
+    seed: int | None
     turn: int
     seats: list[SeatInfo]
     to_move: list[int]
@@ -59,7 +59,7 @@ class MatchView(BaseModel):
             id=match.id,
             game_id=game.info.id,
             status=match.status,
-            seed=match.seed,
+            seed=None if game.hide_live_seed and not match.done else match.seed,
             turn=match.turn,
             seats=match.seats,
             to_move=thinking,
