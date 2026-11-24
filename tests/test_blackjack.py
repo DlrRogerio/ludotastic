@@ -79,7 +79,7 @@ async def test_play_and_replay(user: User, service: MatchService) -> None:
     match = service.create("blackjack", [HumanSpec()], seed=2)
     await user.open(f"/match/{match.id}")
     await user.should_see("Hit")
-    await user.should_not_see("Nova rodada")
+    await user.should_not_see("Play again")
     view = MatchView.of(match)
     assert view.seed is None
     assert view.state["dealer"] == ["4♥"]
@@ -93,11 +93,11 @@ async def test_play_and_replay(user: User, service: MatchService) -> None:
     user.find("Stand").click()
     await match.start()
     await user.should_see("Dealer wins")
-    await user.should_see("Nova rodada")
-    link = user.find("Sair da mesa").elements.pop()
+    await user.should_see("Play again")
+    link = user.find(marker="all-games").elements.pop()
     assert isinstance(link, ui.link)
     assert link.props["href"] == "/"
-    button = user.find("Nova rodada")
+    button = user.find(marker="play-again")
     button.click()
     button.click()
     assert len(service.matches) == 2
@@ -122,11 +122,18 @@ async def test_play_and_replay(user: User, service: MatchService) -> None:
     assert "Dealer: 4♥ 9♦ 7♣ (20)" in Blackjack().observe(restored.state, 0)
 
 
-async def test_new_round_after_bot_match(user: User, service: MatchService) -> None:
+async def test_play_again_after_bot_match(user: User, service: MatchService) -> None:
     match = service.create("blackjack", [BotSpec()], seed=4)
     await match.start()
     await user.open(f"/match/{match.id}")
-    link = user.find("Nova rodada").elements.pop()
+    user.find(marker="play-again").click()
+    fresh = list(service.matches.values())[-1]
+    assert fresh.id != match.id
+    assert [p.label for p in fresh.players] == [p.label for p in match.players]
+    await fresh.start()
+    service.forget_finished()  # Its players are forgotten, so link to a new match.
+    await user.open(f"/history/{match.id}")
+    link = user.find(marker="play-again").elements.pop()
     assert isinstance(link, ui.link)
     assert link.props["href"] == "/play/blackjack"
 
@@ -134,16 +141,16 @@ async def test_new_round_after_bot_match(user: User, service: MatchService) -> N
 async def test_split_table_and_replay(user: User, service: MatchService) -> None:
     match = service.create("blackjack", [HumanSpec()], seed=60)
     await user.open(f"/match/{match.id}")
-    await user.should_see("Dividir")
-    user.find("Dividir").click()
-    await user.should_see("Mão 1 — sua vez")
-    await user.should_not_see("Dividir")
+    await user.should_see("Split")
+    user.find("Split").click()
+    await user.should_see("Hand 1 (your turn)")
+    await user.should_not_see("Split")
     user.find("Stand").click()
-    await user.should_see("Mão 2 — sua vez")
+    await user.should_see("Hand 2 (your turn)")
     await user.should_see(marker="face-down")
     user.find("Stand").click()
     await match.start()
-    await user.should_see("Mão 1: vitória (18) · Mão 2: derrota (11) · Banca: 17")
+    await user.should_see("Hand 1: win (18) · Hand 2: loss (11) · Dealer: 17")
     record = service.store.get(match.id)
     assert record is not None
     assert record.scores == [0.5]

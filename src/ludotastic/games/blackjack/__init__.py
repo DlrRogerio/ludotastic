@@ -1,5 +1,5 @@
-"""Single-hand blackjack against an automatic dealer."""
+"""Blackjack against an automatic dealer, with pair splitting."""
 
-__all__ = ("Blackjack",)
+__all__: tuple[str, ...] = ("Blackjack", "BlackjackState", "Move")
 
-from .game import Blackjack
+from .game import Blackjack, BlackjackState, Move

@@ -214,23 +214,23 @@ def _new_match_page(service: MatchService, game_id: str) -> None:
 
 
 def _show_match(service: MatchService, match: Match) -> None:
-    """Offer a fresh hand or a way back to the games after blackjack."""
-    if match.game.info.id == "blackjack":
-        next_match: Match | None = None
+    """Draw a match, with a way to play again once it is over."""
+    rematch: Match | None = None
 
-        def new_round() -> None:
-            nonlocal next_match
-            if next_match is None:
-                player = match.players[0]
-                next_match = service.create("blackjack", [HumanSpec(name=player.name)])
-            ui.navigate.to(f"/match/{next_match.id}")
+    def play_again() -> None:
+        nonlocal rematch
+        if rematch is None:
+            rematch = service.rematch(match)
+        ui.navigate.to(f"/match/{rematch.id}")
 
-        with ui.row().classes("items-center gap-3").bind_visibility_from(match, "done"):
-            if match.players[0].kind == PlayerKind.HUMAN:
-                ui.button("Nova rodada", icon="replay", on_click=new_round)
-            else:
-                ui.link("Nova rodada", "/play/blackjack")
-            ui.link("Sair da mesa", "/")
+    with ui.row().classes("items-center gap-3").bind_visibility_from(match, "done"):
+        if service.can_rematch(match):
+            ui.button("Play again", icon="replay", on_click=play_again).mark(
+                "play-again"
+            )
+        else:
+            ui.link("Play again", f"/play/{match.game.info.id}").mark("play-again")
+        ui.link("All games", "/").mark("all-games")
 
     match_view(match)
 

@@ -67,6 +67,7 @@ async def test_play_through_the_api(client: httpx2.AsyncClient) -> None:
     match_id = response.json()["id"]
     view = await wait_for_turn(client, match_id, 0)
     assert len(view["legal_actions"]["0"]) == 9
+    assert view["seed"] == 1  # Nothing is hidden in Tic-Tac-Toe.
     assert [m["id"] for m in (await client.get("/api/matches")).json()] == [match_id]
 
     url = f"/api/matches/{match_id}/seats/0/action"

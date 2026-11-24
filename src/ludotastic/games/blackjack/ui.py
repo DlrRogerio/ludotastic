@@ -7,7 +7,13 @@ from typing import Final
 from nicegui import ui
 
 from ludotastic.engine.render import RenderContext
-from ludotastic.games.blackjack.game import Blackjack, BlackjackState, Move, hand_total
+from ludotastic.games.blackjack.game import (
+    Blackjack,
+    BlackjackState,
+    Move,
+    hand_label,
+    hand_total,
+)
 
 CARD: Final = "w-14 h-20 sm:w-20 sm:h-28 flex-none rounded-lg shadow-md"
 
@@ -65,7 +71,7 @@ def render(ctx: RenderContext) -> None:
             _hand("Dealer", visible.dealer, hidden=not visible.finished)
             ui.separator().classes("bg-emerald-600")
             for i, hand in enumerate(visible.hands):
-                _hand(visible.hand_label(i), hand)
+                _hand(hand_label(visible, i), hand)
         if ctx.can_act(0):
             buttons: list[ui.button] = []
 

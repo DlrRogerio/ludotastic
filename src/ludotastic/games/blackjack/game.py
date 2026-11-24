@@ -1,6 +1,12 @@
-"""One hand of blackjack with a dealer who stands on soft 17."""
+"""A round of blackjack with a dealer who stands on soft 17."""
 
-__all__ = ("Blackjack", "BlackjackState", "Move", "hand_total")
+__all__: tuple[str, ...] = (
+    "Blackjack",
+    "BlackjackState",
+    "Move",
+    "hand_label",
+    "hand_total",
+)
 
 import random
 from collections.abc import Mapping, Sequence
@@ -27,9 +33,13 @@ RANK_VALUES: Final = {
 DECK: Final = tuple(rank + suit for suit in "♣♦♥♠" for rank in RANK_VALUES)
 
 
+def _rank(card: str) -> str:
+    return card[:-1]
+
+
 def hand_total(cards: Sequence[str]) -> int:
     """Count every ace low, then promote one ace if it fits."""
-    ranks = [card[:-1] for card in cards]
+    ranks = [_rank(card) for card in cards]
     total = sum(RANK_VALUES[rank] for rank in ranks)
     return total + 10 if "A" in ranks and total + 10 <= TARGET else total
 
@@ -51,15 +61,6 @@ class BlackjackState(BaseModel):
         """Return the hands in playing order."""
         return (self.player, self.second_hand) if self.second_hand else (self.player,)
 
-    def hand_label(self, index: int) -> str:
-        """Identify the hand and indicate whose turn it is."""
-        if not self.second_hand:
-            return "Your hand"
-        label = f"Mão {index + 1}"
-        if not self.finished and self.active_hand == index:
-            label += " — sua vez"
-        return label
-
     @property
     def can_split(self) -> bool:
         """Allow a single split of matching ranks on the opening deal."""
@@ -67,8 +68,18 @@ class BlackjackState(BaseModel):
             not self.finished
             and not self.second_hand
             and len(self.player) == OPENING_HAND_SIZE
-            and self.player[0][:-1] == self.player[1][:-1]
+            and _rank(self.player[0]) == _rank(self.player[1])
         )
+
+
+def hand_label(state: BlackjackState, index: int) -> str:
+    """Name a player's hand, and mark the one being played after a split."""
+    if not state.second_hand:
+        return "Your hand"
+    label = f"Hand {index + 1}"
+    if not state.finished and state.active_hand == index:
+        label += " (your turn)"
+    return label
 
 
 class Move(BaseModel):
@@ -80,7 +91,7 @@ class Move(BaseModel):
 
 
 class Blackjack(Game[BlackjackState, Move]):
-    """Play one hand against the house."""
+    """Play a round against the house."""
 
     info = GameInfo(
         id="blackjack",
@@ -91,18 +102,19 @@ class Blackjack(Game[BlackjackState, Move]):
         tags=("classic", "cards", "single-player"),
     )
     rules = (
-        "Play one hand with a standard 52-card deck. Hit to take a card or stand "
+        "Play a round with a standard 52-card deck. Hit to take a card or stand "
         "to let the dealer play. Face cards count as 10 and aces as 1 or 11. "
         "An opening 21 is blackjack and wins unless both hands have blackjack. "
         "Reaching 21 later automatically stands. Going over 21 loses immediately. "
         "The dealer draws to 17 and stands on soft 17. Equal totals push. "
         "Split an opening pair of identical ranks once to play two hands in order. "
         "Each gets one card immediately. Split aces may hit normally. "
-        "After a split, 21 is an ordinary 21. Both hands face the same dealer."
+        "After a split, 21 is an ordinary 21. Both hands face the same dealer, "
+        "and the round scores the average of the two: a win and a loss score "
+        "the same as a push."
     )
     state_type = BlackjackState
     action_type = Move
-    hide_live_seed = True
 
     @override
     def initial_state(self, rng: random.Random) -> BlackjackState:
@@ -195,13 +207,13 @@ class Blackjack(Game[BlackjackState, Move]):
         if state.second_hand:
             second = hand_total(state.second_hand)
             other, _ = self._result(second, dealer)
-            labels = {1.0: "vitória", 0.5: "empate", 0.0: "derrota"}
+            labels = {1.0: "win", 0.5: "push", 0.0: "loss"}
             return Outcome(
                 scores=((score + other) / 2,),
                 reason=(
-                    f"Mão 1: {labels[score]} ({player}) · "
-                    f"Mão 2: {labels[other]} ({second})"
-                    f" · Banca: {dealer}"
+                    f"Hand 1: {labels[score]} ({player}) · "
+                    f"Hand 2: {labels[other]} ({second}) · "
+                    f"Dealer: {dealer}"
                 ),
             )
         natural = any(
@@ -232,14 +244,14 @@ class Blackjack(Game[BlackjackState, Move]):
             f" ({hand_total(visible.dealer)})" if visible.finished else " [face down]"
         )
         lines = [
-            f"{visible.hand_label(i)}: {' '.join(hand)} ({hand_total(hand)})"
+            f"{hand_label(visible, i)}: {' '.join(hand)} ({hand_total(hand)})"
             for i, hand in enumerate(visible.hands)
         ]
         return "\n".join([*lines, f"Dealer: {dealer}"])
 
     @override
     def describe_action(self, action: Move) -> str:
-        return "Dividir" if action.action == "split" else action.action.title()
+        return action.action.title()
 
     @override
     def renderer(self) -> Renderer:
